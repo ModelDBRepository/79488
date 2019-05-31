@@ -1,0 +1,50 @@
+#!/usr/local/bin/css -f
+
+float SEM(float* vals, float avg, int n) {
+  float sd = 0;
+  int i;
+  for(i=0;i<n;i++) {
+    float d = vals[i] - avg;
+    sd += d * d;
+  }
+  return sqrt(sd / (float)(n-1)) / sqrt(n);
+}
+
+void Anal(String fnm) {
+  fstream istrm;
+  istrm.open(fnm, ios::in);
+
+  fstream ostrm;
+  ostrm.open(fnm + ".dt", ios::out);
+
+  float sse[1000];
+  int i;
+
+  while(!istrm.eof() && istrm.good()) {
+    String_Array& col = ReadLine(istrm);
+    if(istrm.eof() || istrm.bad()) break;
+    if(col[0].contains("_H:"))
+      continue;
+    sse[i]=8.33*col[3]; // convert from errors out of 12 to percent
+    i++;
+  }
+
+  for (i=0;i<1000;i++)
+
+    ostrm << "_D:" << "\t" << 10*(i%20) << "\t" << sse[i] << "\n";
+    
+  istrm.close();
+  ostrm.close();
+  cout << fnm << ".dt:\n";
+  system("more " + fnm + ".dt");
+  cout << "\n";
+}
+
+void Main() {
+  int i;
+  for(i=1;i<argc;i++) {
+    Anal(argv[i]);
+  }
+}
+
+Main();

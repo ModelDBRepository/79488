@@ -1,0 +1,51 @@
+int i,j;
+float A_GoR1, A_NoGoR1,  A_GoR2, A_NoGoR2,  B_GoR1, B_NoGoR1,  B_GoR2, B_NoGoR2; 
+ A_GoR1=A_NoGoR1=A_GoR2=A_NoGoR2=B_GoR1=B_NoGoR1= B_GoR2=B_NoGoR2 =0; 
+
+ for (i=0;i<36;i=i+4) {
+   for (j=0;j<20;j=j+5)
+     A_GoR1 += .environments.RF_Env.events[i].patterns[0].value[j];
+ }
+
+ for (i=2;i<36;i=i+4) {
+   for (j=0;j<20;j=j+5)
+     A_NoGoR1 += .environments.RF_Env.events[i].patterns[0].value[j];
+ }
+
+ for (i=1;i<36;i=i+4) {
+   for (j=0;j<20;j=j+5)
+     A_GoR2 +=.environments.RF_Env.events[i].patterns[0].value[j];
+ }
+
+ for (i=3;i<36;i=i+4) {
+   for (j=0;j<20;j=j+5)
+     A_NoGoR2 += .environments.RF_Env.events[i].patterns[0].value[j];
+ }
+
+for (i=0;i<36;i=i+4) {
+   for (j=1;j<20;j=j+5)
+     B_GoR1 += .environments.RF_Env.events[i].patterns[0].value[j];
+ }
+
+ for (i=2;i<36;i=i+4) {
+   for (j=1;j<20;j=j+5)
+     B_NoGoR1 += .environments.RF_Env.events[i].patterns[0].value[j];
+ }
+
+for (i=1;i<36;i=i+4) {
+   for (j=1;j<20;j=j+5)
+     B_GoR2 += .environments.RF_Env.events[i].patterns[0].value[j];
+ }
+
+ for (i=3;i<36;i=i+4) {
+   for (j=1;j<20;j=j+5)
+     B_NoGoR2 += .environments.RF_Env.events[i].patterns[0].value[j];
+ }
+
+
+
+vals[0].val= (A_GoR1 - A_NoGoR1) + (B_GoR2-B_NoGoR2); // relative Go activity for positive responses (R1 forand R2 for B).
+vals[1].val= (B_GoR1 - B_NoGoR1) + (A_GoR2-A_NoGoR2); // relative Go activity for negative responses (R2 for A and R1 for B). -- this should be negative since the network should learn NoGo to negative responses.
+
+vals[2].val= (A_GoR1 - A_NoGoR1); // Positive Go resps just for A/R1
+vals[3].val= (B_GoR1 - B_NoGoR1); // Negative Go resps just for B/R1

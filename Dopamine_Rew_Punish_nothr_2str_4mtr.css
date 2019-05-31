@@ -1,0 +1,62 @@
+
+
+int snc_size = .layers.SNc.units.size;
+float k = 1.0*.processes.Train_Prob.init_procs[3].s_args[0]/.layers.SNc.n_units;
+UnitSpec* us = .specs.FixedBiasUnitSpec.LearnBiasUnitSpec.matrisom_unitspec;
+
+
+int max_monval = .processes.Cycle_Prob.final_stats.size;
+int j;
+for (j=0;j<max_monval;j++) .processes.Cycle_Prob.final_stats[j].mod.flag=0;
+
+if ((k>0)&&(owner[0].se.val<0.5)) {
+  int i; 
+  for (i=0;i<snc_size;i++) {
+//DA on Rew
+   owner.owner.cur_event.patterns[2].value[i]=100.0; 
+   .layers.SNc.units[i].ext=100.0; // ext of 100 just ensures that SNc units get maximally active during DA bursts
+}
+
+  us.act.gain=k*10000; // bigger gain (for D1 contrast effect)
+  //  us.act.thr=0.25+k*.01;
+
+}
+
+else {
+
+int i;
+ for (i=0;i<snc_size;i++) {
+   owner.owner.cur_event.patterns[2].value[i]=0; //No DA
+   .layers.SNc.units[i].ext=0;
+ }
+
+ us.act.gain=600-k*300; // smaller gain (contrast)
+ us.act.thr=0.25;
+
+}	
+
+.processes.Settle_Prob.cycle.max=30; // burst/dip shouldn't last that long!
+
+float act0 = .layers."Motor Cortex".units[0].act_m;
+float act1 = .layers."Motor Cortex".units[1].act_m;
+
+// check to see which motor resp was most active in minus phase and clamp on in plus phase
+
+if (act0 > act1) {
+  owner.owner.cur_event.patterns[3].value[0] = 1.0;
+  owner.owner.cur_event.patterns[3].value[1] = 0;
+  owner.owner.cur_event.patterns[3].value[2] = 1.0;
+  owner.owner.cur_event.patterns[3].value[3] = 0;
+}
+
+if (act1 > act0) {
+  owner.owner.cur_event.patterns[3].value[0] = 0;
+  owner.owner.cur_event.patterns[3].value[1] = 1.0;
+  owner.owner.cur_event.patterns[3].value[2] = 0;
+  owner.owner.cur_event.patterns[3].value[3] = 1.0;
+}
+
+
+
+
+GetMyTrialProc().SetCurLrate();

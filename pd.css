@@ -1,0 +1,11 @@
+
+int i,j;
+int numSNc = .processes.Train_Prob.init_procs[3].s_args[0];
+
+for (i=numSNc;i<.layers.SNc.n_units;i++) {
+  for (j=0;j<18;j++) {
+
+.layers.SNc.units[i].send.gp[0][j].wt=0;
+.layers.SNc.units[i].send.gp[1][j].wt=0;
+
+  }}

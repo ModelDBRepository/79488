@@ -1,0 +1,239 @@
+For any questions, comments or bug reports please email
+mfrank@u.arizona.edu
+
+NOTE: The original models, in this directory, were set up to run under
+PDP++ 3.2a08.  Older versions of PDP will not work properly, and the
+user should download and install the more recent version of PDP/leabra
+from ftp://grey.colorado.edu/pub/oreilly/pdp++/. If you get error
+messages when you load the project, please let me know or try to
+download that version.
+
+Better yet, the updated (9/30/08,10/24/08) "supplement" directory
+contains new versions of projects that run under Emergent (a major
+rewrite of PDP++).  These new projects also include new demonstrations
+not available in previous models. All of the models use identical
+parameters, simulating different behavioral tasks and effects of
+Parkinson's disease and dopamine medications.
+
+The below README instructions pertain ONLY to the older PDP++ version
+of the projects. The instructions for the new Emergent projects are
+embedded within the project documents that pop up automatically when
+the software is launched.
+
+---------------------------------------------------------------------------
+
+Project I: Go and NoGo learning from positive and negative feedback in
+Parkinson's disease
+
+leabra++ BG_DA_model_STN_2str_GoNoGoRF.proj.gz
+
+This project replicates the basic effects of simulated Parkinson's
+disease and medications on striatal Go-NoGo associations in response
+to "positive" and "negative" stimuli, as described in Frank,
+Seeberger, O'Reilly (2004), which used the Frank (2005) model to
+predict behavioral dissociations in medicated and non-medicated
+patients.  Here the model includes the subthalamic nucleus, as
+described in Frank (2006), Neural Networks (the STN was omitted from
+the initial model for simplicity, but I thought it important to
+replicate all the results with the more complete model).
+
+The model is trained with four stimuli (A,B,C,D), using the Train_Prob
+process. The Batch_Prob process is for running multiple networks with
+different sets of random initial synaptic weights (ie, different
+"subjects").  Responses R1 and R2 can be thought of as approach and
+avoid, respectively, but it doesn't much matter -- the main point is
+to show that DA levels can modulate the degree to which models learn
+more about Go to positive stimuli or NoGo to negative stimuli.  When A
+is presented, the R1 response is correct (positively reinforced) on
+80% of trials, whereas the R2 response is incorrect (and vice-versa on
+the remaining 20% of trials). The opposite structure is simulated for
+stimulus B, where R2 is correct on 80% of trials and R1 is
+incorrect. Stimuli C and D are associated with 60% positive
+reinforcement for choosing R1 and R2 respectively. The models are
+trained for 10 epochs with this probabilistic structure before
+assessing relative Go and NoGo learning.
+
+In the test process (Epoch_1), all stimuli are presented again and
+"activation-based receptive fields" are recorded from the
+Striatum. These record the degree to which units become activated by
+particular input patterns (See
+http://www.cnbc.cmu.edu/Resources/PDP++/manual/pdp-user_176.html for
+more info). In this case, we are interested in the amount of Go
+activity for good (positive) responses (R1 for stimulus A and R2 for
+stimulus B), and the amount of NoGo activity for bad (negative)
+responses (R2 for A and R1 for B). The main findings are that (i)
+intact networks learn both Go to positive responses and NoGo to
+negative responses, (ii) simulated PD leads to impaired Go learning
+but intact NoGo learning, and (iii) simulated DA medications lead to
+the opposite pattern, as found in our empirical studies.
+
+The activation based RF's get computed in the final_stats of the
+Trial_1 process, and accumulates over the epoch, with values for each
+striatal unit in response to each input unit stored in the RF_Env
+environment. Note that for this analysis each test trial is only run
+for 20 cycles (ie before a given response is actually selected by the
+BG). This is simply because the activation of NoGo to a particular
+stimulus-response conjunction is typically followed by facilitation of
+the alternative response. When this response becomes fully active in
+motor cortex, the other response is completely inhibited, so that NoGo
+activity for that unwanted response is no longer observed at this
+point in Striatum. Thus the most valid assessment of NoGo activity
+that allows the model to avoid a particular respond must occur during
+the settling process itself. 20 cycles gives roughly enough time to
+process the stimulus and lead to differential striatal activation
+while both responses are still being considered.
+
+In the final_stats of Epoch_1 (ie after the full test epoch has been
+run), a script "analRF_ab_gonogo.css" automatically computes the
+relative Go and NoGo activity patterns for each response associated
+with the different input stimuli (A and B) by looking at the RF_Env
+environment. This script returns four values in the stats.
+
+gn_pos computes relative Go-NoGo striatal activity for positive
+stimulus-response conjunctions (R1 for A and R2 for B). Networks
+should learn greater Go representations for these positive
+associations, so the value should be positive in intact and medicated
+cases.
+
+gn_neg computes relative Go-NoGo striatal activity for negative
+stimulus-response conjunctions (R2 for A and R1 for B). Networks
+should learn greater NoGo representations for these negative
+associations, so the value should be negative in intact and PD
+cases. Note that if plotting NoGo-Go associations the sign should be
+flipped (i.e. the value is positive), as was done in Frank et al
+(2004), for comparison with behavioral accuracy results.  PD networks
+should be impaired at positive Go learning (in pn_pos) and medicated
+networks should be impaired at negative NoGo learning (in
+pn_neg). These effects should be evident both when comparing the
+groups in the different conditions, or simply testing whether the
+gn_pos is significantly greater than zero (in PD nets) and whether
+gn_neg is significantly less than zero (in medicated nets).
+
+gn_A_R1 and gn_B_R1 are somewhat redundant, and reflect Go-NoGo
+associations just for A-R1 conjunctions (should be positive) and B-R1
+conjunctions (should be negative). These are what were used in our
+original paper, but both measures are valid and should show the right
+pattern.
+
+These values all get stored in the Epoch_1 graphlog. If you set a Save
+file for this log and run a batch of 25 or 50 networks (ie in
+Batch_Prob process set batch.max to 25 or 50 and hit Reinit, Run), you
+should see the correct patterns of results across the runs (which may
+not hold for every individual network, just like it doesn't hold for
+every individual patient).  The shell script analrf.sh computes the
+means and standard errors of each of the relevant stats and outputs
+them to a .dt file (or you can just compute the means and standard
+errors yourself).
+
+To test intact networks, simply hit the Intact Run button on the
+control panel of the project, and then set the batch to 20 or 50 in
+the Batch_Prob process.  When you run the Batch_Prob process it will
+run a batch of networks with different random initial synaptic
+weights, and after training on the task it will then automatically
+test each network with the Epoch_1 process (where the receptive fields
+are computed). Set a Save file on the the Epoch_1_GraphLog process so
+that the RF statistics are saved for each network, and then hit Reinit
+and Run on the Batch_Prob process.
+
+To test PD, set a new Save file (with PD or some descriptor in the log
+name), and hit the PD Run button on the control panel of the
+project. This sets the number of SNc units that are connected to the
+Striatum to 1 (out of 4). Note that the units are not actually
+lesioned, because leabra applies a normalization factor when computing
+net input to layers, so that it would treat a single unit layer as
+effectively four times greater input to other layers compared with a
+four unit layer. This makes sense for many general neural net
+applications (so that the total number of units in a region doesn't
+parametrically affect downstream processing), but is not useful when
+simulating partial lesion effects on output activity of a brain
+region!  To circumvent this problem we simply eliminate the synaptic
+weights from 3 out of the 4 units to Striatum (test this by pressing
+r.wt and clicking on striatal units in a PD network -- you should see
+connectivity to only one out of four SNc units). This way the units
+all still get activated, but only the connected ones actually
+influence activity in downstream layers.  The PD networks also have
+reduced tonic and phasic activity levels.
+
+To test medicated nets, hit the Meds Run button -- this increases
+tonic DA levels relative to PD nets and also partially blocks the
+effects of DA dips during negative feedback (DA levels drop only to
+0.2 instead of 0). Also remember again to save a new log name with the
+meds descriptor in it.
+
+When the batch process is finished (ie it has run through all the
+networks), you can just type at a command line "analrf.sh
+Epoch_1LogName.log". The output gives you the number of nets averaged
+across in the second column. The remaining columns show the four
+relevant stats each followed by its standard error (i.e the third
+column is mean gn_pos across all nets and the fourth column is the
+standard error of gn_pos. The fifth column is gn_neg, etc).
+
+---------------------------------------------------------------------------
+
+Project II: Medication effects on probabilistic reversal
+
+leabra++ BG_DA_model_STN_2str_ProbReversal_repl.proj.gz
+
+This project replicates the effect described in Frank (2005), where
+simulated DA medications slectively impair probabilistic reversal
+learning, but not acquisition. As above, these medication effects are
+due to partial blockade of DA dips needed to learn NoGo and override
+the prepotent Go response learned during acquisition. Again this model
+includes the subthalamic nucleus (not in original '05 paper), and has
+identical parameters to that described above. The project is set up to
+run 40 epochs, and automatically switches from TrainFreq to
+Train_Reversal half way through (after 20 epochs). You can monitor
+performance on the training/reversal environments in the Epoch_Prob
+graphlog -- these should show the correct pattern of results, but this
+measure is not ideal because performance is indexed with respect to
+actual feedback received (which is probabilistic) rather than optimal
+performance. To circumvent this problem networks are tested every
+epoch in the Epoch_1 process (as above) with the Test environments
+(TestFreq and Test_Reversal), where errors are counted not as a
+function of feedback in each trial but rather in terms of the
+best/most optimal choice.
+
+If you set a Save file for the Epoch_1 graphlog and run a batch of 50
+networks (ie in Batch_Prob process set batch.max to 50 and hit Reinit,
+Run), you should see the correct patterns of results across the
+runs. For the intact case, hit the Intact Run button before running
+the batch; for medication simulations hit Meds Run first. Medicated
+networks should make significantly greater number of errors (reported
+in the 4th column of the logfile) only during the reversal phase
+(after epoch 20, where epochs are reported in the 6th column of the
+logfile).
+
+When the batch process is finished (ie it has run through all the
+networks), you can just type at a command line "analpr.sh
+Epoch_1LogName.log". The output gives you the number of errors (out of
+4 test trials) as a function of epoch, averaged across all networks.
+
+---------------------------------------------------------------------------
+
+Project III: Probabilistic classification in Parkinson's disease
+
+leabra++ BG_DA_model_STN_2str_WeatherPred_repl.proj.gz
+
+This project replicates the effect described in Frank (2005), where
+networks with simulated Parkinson's disease are impaired in the
+"weather prediction" probabilistic learning task. The project is set
+up to run two epochs, consisting of one hundred trials each, for a
+total of 200 trials. Networks are tested every ten trials in the
+Epoch_1 process using an environment to detect optimal performance, as
+described in the reversal project above. Save a logfile in the Epoch_1
+process and hit Intact Run on the control panel and then set a batch
+of 50 networks, Reinit and Run. The output in the 4th column of the
+Epoch_1 graph log file is the number of errors (out of 12) made on the
+optimal test environment, where each line is a new data point
+collected after 10 trials of learning. To analyze this data at the
+end, use the analwp_seq.css script and type "analwp_seq.css
+Epoch_1LogName.log". This will convert all of the output data to a .dt
+file with trial number in the 2nd column and percent error in the
+third column for each network (sequentially). To compute statistics on
+this file across all networks, run "analwp_tst.sh
+Epoch_1LogName.log.dt", which will produce a .dt.dt file with trial
+number in the first column, number of networks in the second column,
+percent error in the third column, and standard error in the fourth
+column.  Do the same thing but Hit PD Run and save a new logfile, and
+you should see that PD networks are impaired at learning in this
+complex probabilistic task.

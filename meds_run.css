@@ -1,0 +1,6 @@
+
+.processes.Trial_Prob.init_procs[1].s_args[0]=0.03; // set tonic DA ext value
+.processes.Train_Prob.init_procs[3].s_args[0]=3; // more DA units than PD nets but not completely normal..
+
+.processes.Trial_Prob.loop_stats[3].SetScript("./Dopamine_Rew_Punish_nothr_2str_4mtr_nodip.css"); // reduced effects of DA dips with meds
+.processes.Trial_Prob.loop_stats[3].Compile();

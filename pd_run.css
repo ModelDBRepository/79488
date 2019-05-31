@@ -1,0 +1,5 @@
+
+.processes.Trial_Prob.init_procs[1].s_args[0]=0.03; // set tonic DA ext value in intact units
+.processes.Train_Prob.init_procs[3].s_args[0]=1; // set number of SNc units connected: 25% for PD
+.processes.Trial_Prob.loop_stats[3].SetScript("./Dopamine_Rew_Punish_nothr_2str_4mtr_pd.css"); // set script to diminish da bursts in PD
+.processes.Trial_Prob.loop_stats[3].Compile();

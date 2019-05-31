@@ -1,0 +1,7 @@
+
+float k=1.0*.processes.Train_Prob.init_procs[3].s_args[0]/.layers.SNc.n_units;
+UnitSpec* us = .specs.FixedBiasUnitSpec.LearnBiasUnitSpec.matrisom_unitspec;
+if ((k>0)&&(owner[2].s_args[0]>=0)) {us.act.gain=k*2500;
+us.act.thr=0.26;}
+else {us.act.gain=300;
+us.act.thr=0.25;}
